@@ -1,6 +1,15 @@
 # Anime Episode Downloader
 
-Anime Episode Downloader is a Python script that facilitates searching for anime on Anitaku and downloading episodes from Gogoanime using asynchronous requests.
+Anime Episode Downloader is a powerful Python script that simplifies searching for anime on Anitaku and downloading episodes from Gogoanime using asynchronous requests.
+
+<p align="center">
+    <img align="center" height="80px" width="80px" src="https://raw.githubusercontent.com/OTAKUWeBer/PyAniDL/main/assets/icon.png" alt="PyAniDL">PyAniDL
+</p>
+
+*RustyGoGoDl* is a powerful tool for downloading anime from Gogoanime built on Rust. It offers a range of features to ensure a smooth and efficient download experience.
+
+<img align="center" src="https://raw.githubusercontent.com/OTAKUWeBer/PyAniDL/main/assets/ss1.jpg" alt="screenshot-1">
+<img align="center" src="https://raw.githubusercontent.com/OTAKUWeBer/PyAniDL/main/assets/ss2.jpg" alt="screanshot-2">
 
 ## Features
 
@@ -13,38 +22,32 @@ Anime Episode Downloader is a Python script that facilitates searching for anime
 - **Interactive Selection**: Provides a smooth selection interface using `questionary` for browsing and selecting anime from search results.
 - **Cross-Platform Compatibility**: Supports Windows, macOS, and Linux operating systems for seamless execution.
 - **Download Directory Management**: Automatically creates a directory for downloaded anime episodes if it doesn't exist.
-- **Resume Capability:** Supports resuming interrupted downloads by utilizing HTTP Range requests.
-- **Download Progress:** Displays a progress bar during downloads using `tqdm` for improved user experience.
+- **Resume Capability**: Supports resuming interrupted downloads by utilizing HTTP Range requests.
+- **Download Progress**: Displays a progress bar during downloads using `tqdm` for improved user experience.
+- **Video Quality Selection**: Automatically selects the best available video quality (720p, 1080p, 480p, 360p) if the preferred quality is not available.
 
 ## Prerequisites
 
 - Python 3.7 or higher installed on your system.
-- Required Python packages (`aiohttp`, `beautifulsoup4`, `requests`, `validators`, `questionary`, `nest_asyncio`, `tqdm`, `termcolor`), which can be installed via `pip`.
+- Required Python packages (`aiohttp`, `beautifulsoup4`, `requests`, `validators`, `questionary`, `nest_asyncio`, `tqdm`, `termcolor`), which can be installed via pip.
 
 ## Installation
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/OTAKUWeBer/PyAniDL.git
-   cd PyAniDL
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure cookies:**
-
-   Update the necessary cookies in the script (`main.py`) for authentication with Gogoanime.
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/OTAKUWeBer/PyAniDL.git
+    cd PyAniDL
+    ```
+2. Install dependencies:
+    ```sh
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
 1. **Run the script:**
 
-   ```bash
+   ```sh
    python main.py
    ```
 
@@ -57,21 +60,6 @@ Anime Episode Downloader is a Python script that facilitates searching for anime
 
    - Specify the range and quality of episodes to download when prompted.
 
-## Configuration
-
-- Ensure your `cookies` in `main.py` are correctly set for authentication with Gogoanime.
-
-## External Commands
-
-- The script may use `subprocess` for executing external commands if required for specific functionality.
-
 ## Contributing
 
-Contributions are welcome! Follow these steps to contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/awesome-feature`).
-3. Make your changes.
-4. Commit your changes (`git commit -am 'Add awesome feature'`).
-5. Push to the branch (`git push origin feature/awesome-feature`).
-6. Create a new Pull Request.
+Contributions are welcome! Please submit a pull request or open an issue to discuss your ideas.
