@@ -10,14 +10,10 @@
 ## Features
 
 - **Search Anime**: Enter the name of the anime you're looking for on Anitaku and browse results.
-- **Download Episodes**: Select an anime from the search results and download episodes from Gogoanime in various qualities.
-- **Asynchronous Requests**: Utilizes `asyncio` and `aiohttp` for non-blocking HTTP requests, enhancing performance when fetching and downloading episodes asynchronously.
-- **HTML Parsing**: Uses `BeautifulSoup` for parsing HTML content from web pages to extract anime details and episode download links.
-- **External Commands Execution**: Utilizes `subprocess` for executing external commands if required.
-- **HTTP Requests**: Utilizes `requests` for making synchronous HTTP requests when necessary.
-- **Interactive Selection**: Provides a smooth selection interface using `questionary` for browsing and selecting anime from search results.
-- **Cross-Platform Compatibility**: Supports Windows, macOS, and Linux operating systems for seamless execution.
 - **Download Directory Management**: Automatically creates a directory for downloaded anime episodes if it doesn't exist.
+- **Concurrent Downloads**: Download multiple episodes simultaneously to save time.
+- **Download Episodes**: Select an anime from the search results and download episodes from Gogoanime in various qualities.
+- **Complete Season or Episode Range**: Download a full season or select specific episodes (e.g., episodes 5-12).
 - **Resume Capability**: Supports resuming interrupted downloads by utilizing HTTP Range requests.
 - **Download Progress**: Displays a progress bar during downloads using `tqdm` for improved user experience.
 - **Video Quality Selection**: Automatically selects the best available video quality (1080p, 480p, 360p) if the preferred quality (720p) is not available.
