@@ -20,6 +20,25 @@ COOKIES = {
     'auth': 'KhXMsD6IEey4qis2s%2F0Z4mnIjleMwfcORDZuXzqiXnhuF5Dnuq6iqNS4OrJ%2Bz1uqm1MJt%2BcgHZ0GKakQT1CapQ%3D%3D',
 }
 
+
+gogo_url = "https://anitaku.pe"
+
+
+# List of fallback resolutions
+fallback_res = [
+    "1280x720",
+    "960x720",
+    "1920x1080",
+    "1440x1080",
+    "854x480",
+    "720x576",
+    "720x480",
+    "640x480",
+    "640x360",
+    "480x360"
+]
+
+
 def clear_screen():
     """Clear the console screen."""
     if os.name == 'nt':  # For Windows
@@ -44,7 +63,7 @@ async def search_anime():
             print(colored("\nSearch interrupted. Exiting.", 'red'))
             return
         
-        url = f"https://anitaku.pe/search.html?keyword={search}"
+        url = f"{gogo_url}/search.html?keyword={search}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 html = await response.text()
@@ -57,7 +76,7 @@ async def search_anime():
             for item in items:
                 title = item.find("a").get("title")
                 link = item.find("a").get("href")
-                results[title] = f"https://anitaku.pe{link}"
+                results[title] = f"{gogo_url}{link}"
         
         if not results:
             clear_screen()
@@ -160,7 +179,7 @@ async def fetch_episode_links(selected_link, title):
                     for list_item in container.find_all("li"):
                         link = list_item.find("a")
                         if link:
-                            episode_link = f"https://anitaku.pe{link['href'][1:]}"
+                            episode_link = f"{gogo_url}{link['href'][1:]}"
                             download_links.append(episode_link)
                 else:
                     clear_screen()
@@ -172,7 +191,7 @@ async def fetch_episode_links(selected_link, title):
     tasks = [download_file(url, COOKIES, QUALITY, os.path.join(download_directory, f"{url.split('/')[-1]}.mp4"), semaphore) for url in reversed(download_links)]
     await asyncio.gather(*tasks)
 
-async def download_file(url, COOKIES, res, local_filename, semaphore, chunk_size=1024, fallback_res=['1920x1080', '854x480', '640x360']):
+async def download_file(url, COOKIES, res, local_filename, semaphore, fallback_res=fallback_res, chunk_size=1024):
     """Download an episode file with the specified resolution."""
     async with semaphore:
         async with aiohttp.ClientSession(cookies=COOKIES) as session:

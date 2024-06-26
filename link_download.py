@@ -23,6 +23,23 @@ COOKIES = {
 QUALITY = "1280x720"
 DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), "downloaded_animes")
 
+gogo_url = "https://anitaku.pe"
+
+
+# List of fallback resolutions
+fallback_res = [
+    "1280x720",
+    "960x720",
+    "1920x1080",
+    "1440x1080",
+    "854x480",
+    "720x576",
+    "720x480",
+    "640x480",
+    "640x360",
+    "480x360"
+]
+
 # Ensure the download directory exists
 os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
 
@@ -43,7 +60,7 @@ async def get_episodes_links(anime_eps_url):
                 soup = BeautifulSoup(html, "html.parser")
                 container = soup.find("ul", {"id": "episode_related"})
                 if container:
-                    links = [f"https://anitaku.pe{li.find('a')['href'][1:]}" for li in container.find_all("li")]
+                    links = [f"{gogo_url}{li.find('a')['href'][1:]}" for li in container.find_all("li")]
                     return links
                 else:
                     print(colored(f"Failed to retrieve episode list, status code: {response.status}", 'red'))
@@ -51,7 +68,7 @@ async def get_episodes_links(anime_eps_url):
                 print(colored(f"Failed to retrieve page, status code: {response.status}", 'red'))
             return []
 
-async def download_file(url, cookies, res, local_filename, semaphore, chunk_size=1024, fallback_res=['1920x1080', '854x480', '640x360']):
+async def download_file(url, cookies, res, local_filename, semaphore, fallback_res=fallback_res, chunk_size=1024):
     """Download an episode file with the specified resolution."""
     async with semaphore:
         async with aiohttp.ClientSession(cookies=cookies) as session:
