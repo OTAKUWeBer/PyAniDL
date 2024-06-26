@@ -37,7 +37,8 @@ fallback_res = [
     "720x480",
     "640x480",
     "640x360",
-    "480x360"
+    "480x360",
+    "638x360"
 ]
 
 # Ensure the download directory exists
