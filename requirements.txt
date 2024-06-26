@@ -5,3 +5,4 @@ nest_asyncio
 questionary
 validators
 tqdm
+termcolor
