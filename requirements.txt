@@ -6,3 +6,4 @@ questionary
 validators
 tqdm
 termcolor
+subprocess
