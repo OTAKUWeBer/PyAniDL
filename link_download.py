@@ -158,7 +158,7 @@ async def display_anime_details(selected_link):
         
         print(f"\033[1mTitle:\033[0m {anime_info.get('title')}")
         print(f"\033[1mThumbnail:\033[0m {anime_info.get('image_url')}")
-        print("\033[1mAbout:\033[0m")
+        print(f"\033[1mAbout:\033[0m")
         
         plot_summary = anime_info.get('plot_summary')
         if plot_summary:
