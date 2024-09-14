@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import os
 import subprocess
+import json
 import questionary
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -20,37 +21,17 @@ COOKIES = {
     'gogoanime': '2stn8gti5vihjk80dnhgvh3s72',
     'auth': 'KhXMsD6IEey4qis2s%2F0Z4mnIjleMwfcORDZuXzqiXnhuF5Dnuq6iqNS4OrJ%2Bz1uqm1MJt%2BcgHZ0GKakQT1CapQ%3D%3D',
 }
-QUALITY = "1280x720"
-DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), "downloaded_animes")
 
-gogo_url = "https://anitaku.pe"
+# Open the JSON file
+with open('config.json', 'r') as file:
+    data = json.load(file)
+gogo_url = (data["gogo_url"])
+fetch_ep_list_api = data["fetch_ep_list_api"]
+fallback_res = data["fallback_res"]
+QUALITY = data["preferred_res"]
+DOWNLOAD_DIRECTORY = os.path.join(os.getcwd(), data["download_folder"])
 
 
-# List of fallback resolutions
-fallback_res = [
-    "1280x720", 
-    "1336x720",
-    "960x720",
-    "1920x1080",
-    "1440x1080",
-    "2002x1080",
-    "2560x1080",
-    "854x480",
-    "720x480",
-    "720x576",
-    "640x480",
-    "320x240",
-    "890x480",
-    "640x360",
-    "480x360",
-    "668x360",
-    "638x360",
-    "512x384",
-    "1280x800",
-    "1024x768",
-    "800x600",
-    "1152x864"
-]
 
 # Ensure the download directory exists
 os.makedirs(DOWNLOAD_DIRECTORY, exist_ok=True)
@@ -192,7 +173,8 @@ async def display_anime_details(selected_link):
         if download_choice:
             start = questionary.text("Download episode from (number): ").ask()
             end = questionary.text("To: ").ask()
-            anime_eps_url = f"https://ajax.gogocdn.net/ajax/load-list-episode?ep_start={start}&ep_end={end}&id={grab_id(selected_link)}"
+            code = grab_id(selected_link)
+            anime_eps_url = fetch_ep_list_api.format(START_EP=start, END_EP=end, ANIME_ID=code)
             await fetch_episode_links(anime_eps_url, anime_info.get('title'))
         else:
             clear_screen()
@@ -203,7 +185,8 @@ async def fetch_episode_links(anime_eps_url, title):
     if not episode_links:
         return
 
-    semaphore = asyncio.Semaphore(2)  # Limit to 2 concurrent downloads
+    concurrent_downloads = data["concurrent_downloads"]
+    semaphore = asyncio.Semaphore(concurrent_downloads)
     tasks = [
         download_file(
             url,

@@ -1,6 +1,7 @@
 import asyncio
 import aiohttp
 import os
+import json
 import subprocess
 import questionary
 import nest_asyncio
@@ -21,34 +22,12 @@ COOKIES = {
 }
 
 
-gogo_url = "https://anitaku.pe"
-
-
-# List of fallback resolutions
-fallback_res = [
-    "1280x720", 
-    "1336x720",
-    "960x720",
-    "1920x1080",
-    "1440x1080",
-    "2002x1080",
-    "2560x1080",
-    "854x480",
-    "720x480",
-    "720x576",
-    "640x480",
-    "320x240",
-    "890x480",
-    "640x360",
-    "480x360",
-    "668x360",
-    "638x360",
-    "512x384",
-    "1280x800",
-    "1024x768",
-    "800x600",
-    "1152x864"
-]
+# Open the JSON file
+with open('config.json', 'r') as file:
+    data = json.load(file)
+gogo_url = (data["gogo_url"])
+fetch_ep_list_api = data["fetch_ep_list_api"]
+fallback_res = data["fallback_res"]
 
 
 
@@ -175,10 +154,9 @@ async def fetch_episode_links(selected_link, title):
     code = grab_id(selected_link)
     start = questionary.text("Download episode from (number): ").ask()
     end = questionary.text("To: ").ask()
-    QUALITY = "1280x720"
-    anime_eps_url = f"https://ajax.gogocdn.net/ajax/load-list-episode?ep_start={start}&ep_end={end}&id={code}"
-
-    download_directory = os.path.join(os.getcwd(), "downloaded_animes", title)
+    QUALITY = data["preferred_res"]
+    anime_eps_url = fetch_ep_list_api.format(START_EP=start, END_EP=end, ANIME_ID=code)
+    download_directory = os.path.join(os.getcwd(), data["download_folder"], title)
     os.makedirs(download_directory, exist_ok=True)
 
     download_links = []
@@ -199,8 +177,9 @@ async def fetch_episode_links(selected_link, title):
                     print(colored('No episodes found on the page.', 'red'))
             else:
                 print(colored(f"Failed to retrieve episode list, status code: {response.status}", 'red'))
-
-    semaphore = asyncio.Semaphore(2)  # Limit to 2 concurrent downloads
+    
+    concurrent_downloads = data["concurrent_downloads"]
+    semaphore = asyncio.Semaphore(concurrent_downloads)
     tasks = [download_file(url, COOKIES, QUALITY, os.path.join(download_directory, f"{url.split('/')[-1]}.mp4"), semaphore) for url in reversed(download_links)]
     await asyncio.gather(*tasks)
 
