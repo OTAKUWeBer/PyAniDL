@@ -15,7 +15,7 @@
 - **Complete Season or Episode Range**: Download a full season or select specific episodes (e.g., episodes 1-12).
 - **Resume Capability**: Supports resuming interrupted downloads by utilizing HTTP Range requests.
 - **Download Progress**: Displays a progress bar during downloads using `tqdm` for improved user experience.
-- **Video Quality Selection**: Automatically selects the best available video quality (1080p, 480p, 360p) if the preferred quality (720p) is not available.
+- **Video Quality Selection**: Automatically selects the best available video quality (1080p) if the preferred quality (720p) is not available.
 
 ## Prerequisites
 

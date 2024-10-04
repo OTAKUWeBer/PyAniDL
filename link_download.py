@@ -80,6 +80,9 @@ async def download_file(url, cookies, res, local_filename, semaphore, fallback_r
                                 download_link = next((link['href'] for link in links if fallback in link.text), None)
                                 if download_link:
                                     break
+                            else: 
+                                for link in links:
+                                    download_link = link['href']
                         
                         if download_link:
                             headers = {}
@@ -108,7 +111,7 @@ async def download_file(url, cookies, res, local_filename, semaphore, fallback_r
                             print("☑", end="")
                             print(colored(f" File downloaded successfully and saved as {local_filename}", 'green'))
                         else:
-                            print(colored(f"Requested quality not available and no fallback found for {url.split('/')[-1]}.", 'red'))
+                            print(colored(f"Requested quality not available and no other resulation found for {url.split('/')[-1]}.", 'red'))
                     else:
                         print(colored('Download link container not found.', 'red'))
                 else:
