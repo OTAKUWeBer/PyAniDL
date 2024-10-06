@@ -20,7 +20,7 @@
 ## Prerequisites
 
 - Python 3.7 or higher installed on your system.
-- Required Python packages (`aiohttp`, `beautifulsoup4`, `requests`, `validators`, `questionary`, `nest_asyncio`, `tqdm`, `termcolor`) which can be installed via pip.
+- Required Python packages (`aiohttp`, `beautifulsoup4`, `validators`, `questionary`, `nest_asyncio`, `tqdm`, `termcolor`) which can be installed via pip.
 
 ## Installation
 

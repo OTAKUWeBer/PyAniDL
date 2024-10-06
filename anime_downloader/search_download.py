@@ -151,7 +151,7 @@ async def display_anime_details(title, selected_link):
 
 async def fetch_episode_links(selected_link, title):
     """Fetch episode links for the selected anime and download them."""
-    code = grab_id(selected_link)
+    code = await grab_id(selected_link)
     start = questionary.text("Download episode from (number): ").ask()
     end = questionary.text("To: ").ask()
     QUALITY = data["preferred_res"]

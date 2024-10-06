@@ -176,7 +176,7 @@ async def display_anime_details(selected_link):
         if download_choice:
             start = questionary.text("Download episode from (number): ").ask()
             end = questionary.text("To: ").ask()
-            code = grab_id(selected_link)
+            code = await grab_id(selected_link)
             anime_eps_url = fetch_ep_list_api.format(START_EP=start, END_EP=end, ANIME_ID=code)
             await fetch_episode_links(anime_eps_url, anime_info.get('title'))
         else:

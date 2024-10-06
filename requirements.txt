@@ -1,6 +1,5 @@
 aiohttp
 beautifulsoup4
-requests
 nest_asyncio
 questionary
 validators
