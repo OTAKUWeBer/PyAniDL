@@ -8,7 +8,7 @@ import nest_asyncio
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from termcolor import colored
-from id_grab import grab_id
+from .id_grab import grab_id
 
 # Apply the nest_asyncio patch
 nest_asyncio.apply()

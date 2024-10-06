@@ -1,6 +1,6 @@
 import asyncio
-from link_download import link
-from search_download import search
+from anime_downloader import link
+from anime_downloader import search
 import subprocess
 import os
 

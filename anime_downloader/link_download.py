@@ -9,7 +9,7 @@ from tqdm import tqdm
 import nest_asyncio
 from termcolor import colored
 import validators
-from id_grab import grab_id
+from .id_grab import grab_id
 
 # Apply the nest_asyncio patch
 nest_asyncio.apply()
