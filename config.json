@@ -1,5 +1,5 @@
 {
-    "gogo_url": "https://anitaku.pe",
+    "gogo_url": "https://anitaku.bz",
     "fetch_ep_list_api": "https://ajax.gogocdn.net/ajax/load-list-episode?ep_start={START_EP}&ep_end={END_EP}&id={ANIME_ID}",
     "fallback_res" : [
         "1280x720", 

@@ -117,9 +117,17 @@ async def download_file(url, cookies, res, local_filename, semaphore, fallback_r
                 else:
                     print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
 
-def get_valid_url(prompt_text):
+
+def get_valid_url():
     while True:
-        url = questionary.text(prompt_text).ask()
+        url = questionary.text("Drop the anime link from GoGoanime (anitaku) or 'q' to exit: ").ask()
+        
+        # Check if the user wants to exit
+        if url.lower() == 'q':
+            print("Exiting...")
+            exit()
+
+        # Check if the URL is valid
         if validators.url(url):
             return url
         else:
@@ -203,7 +211,7 @@ async def fetch_episode_links(anime_eps_url, title):
     await asyncio.gather(*tasks)
 
 async def link():
-    link = get_valid_url("Drop the anime link from GoGoanime (anitaku): ")
+    link = get_valid_url()
     await display_anime_details(link)
 
 if __name__ == "__main__":
