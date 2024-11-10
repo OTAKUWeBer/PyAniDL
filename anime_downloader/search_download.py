@@ -47,7 +47,7 @@ async def search_anime():
         
         try:
             search = questionary.text("Enter anime name to search or 'q' to quit: ", style=questionary.Style([('answer', 'fg:green')])).ask()
-            if search.lower() == 'q':
+            if search is None or search.lower() == 'q':
                 clear_screen()
                 print(colored("Exiting anime search.", 'red'))
                 return

@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import nest_asyncio
 from termcolor import colored
-import validators
 from .id_grab import grab_id
 
 # Apply the nest_asyncio patch
@@ -118,20 +117,29 @@ async def download_file(url, cookies, res, local_filename, semaphore, fallback_r
                     print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
 
 
-def get_valid_url():
-    while True:
-        url = questionary.text("Drop the anime link from GoGoanime (anitaku) or 'q' to exit: ").ask()
-        
-        # Check if the user wants to exit
-        if url.lower() == 'q':
-            print("Exiting...")
-            exit()
 
-        # Check if the URL is valid
-        if validators.url(url):
-            return url
-        else:
-            print(colored("Invalid input. Please enter a valid URL.", 'red'))
+def get_valid_url():
+    try:
+        while True:
+            url = questionary.text("Drop the anime link from GoGoanime (anitaku) or 'q' to exit: ").ask()
+            
+            # Check if the user wants to exit
+            if url and url.lower() == 'q':
+                print("Exiting...")
+                return None  # Return None to gracefully exit the loop
+
+            # Check if the URL starts with 'https://anitaku'
+            if url and url.lower().startswith("https://anitaku"):
+                return url
+            else:
+                print(colored("Invalid input. Please enter a URL starting with 'https://anitaku\nExiting...'", 'red'))
+                return
+    except KeyboardInterrupt:
+        print("\nExiting...")  # Added newline for better output format
+        return  # Gracefully return None on KeyboardInterrupt
+
+
+
 
 async def display_anime_details(selected_link):
     """Display details of the selected anime."""
@@ -214,7 +222,8 @@ async def fetch_episode_links(anime_eps_url, title):
 
 async def link():
     link = get_valid_url()
-    await display_anime_details(link)
+    if link:
+        await display_anime_details(link)
 
 if __name__ == "__main__":
     asyncio.run(link())
