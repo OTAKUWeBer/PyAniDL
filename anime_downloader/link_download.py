@@ -132,7 +132,8 @@ def get_valid_url():
             if url and url.lower().startswith("https://anitaku"):
                 return url
             else:
-                print(colored("Invalid input. Please enter a URL starting with 'https://anitaku\nExiting...'", 'red'))
+                clear_screen()
+                print(colored("Invalid input. Please enter a URL starting with 'https://anitaku'\nExiting...", 'red'))
                 return
     except KeyboardInterrupt:
         print("\nExiting...")  # Added newline for better output format
