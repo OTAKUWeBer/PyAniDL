@@ -113,7 +113,7 @@ async def download_file(url, cookies, res, local_filename, semaphore, fallback_r
                         else:
                             print(colored(f"Requested quality not available and no other resulation found for {url.split('/')[-1]}.", 'red'))
                     else:
-                        print(colored('Download link container not found.', 'red'))
+                        print(colored(f'Download link container not found for {local_filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]}.', 'red'))
                 else:
                     print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
 
@@ -198,12 +198,14 @@ async def fetch_episode_links(anime_eps_url, title):
 
     concurrent_downloads = data["concurrent_downloads"]
     semaphore = asyncio.Semaphore(concurrent_downloads)
+    sanitized_title = title.translate(str.maketrans({':': '', '*': '', '?': '', '<': '', '>': '', '|': '', '"': ''}))
+
     tasks = [
         download_file(
             url,
             COOKIES,
             QUALITY,
-            os.path.join(DOWNLOAD_DIRECTORY, title, f"{url.split('/')[-1]}.mp4"),
+            os.path.join(DOWNLOAD_DIRECTORY, sanitized_title, f"{url.split('/')[-1]}.mp4"),
             semaphore
         )
         for url in reversed(episode_links)

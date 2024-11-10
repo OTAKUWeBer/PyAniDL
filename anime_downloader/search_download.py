@@ -155,8 +155,11 @@ async def fetch_episode_links(selected_link, title):
     start = questionary.text("Download episode from (number): ").ask()
     end = questionary.text("To: ").ask()
     QUALITY = data["preferred_res"]
+
+    # Sanitize the title for Windows compatibility
+    safe_title = title.translate(str.maketrans({':': '', '*': '', '?': '', '<': '', '>': '', '|': '', '"': ''}))
     anime_eps_url = fetch_ep_list_api.format(START_EP=start, END_EP=end, ANIME_ID=code)
-    download_directory = os.path.join(os.getcwd(), data["download_folder"], title)
+    download_directory = os.path.join(os.getcwd(), data["download_folder"], safe_title)
     os.makedirs(download_directory, exist_ok=True)
 
     download_links = []
@@ -231,7 +234,7 @@ async def download_file(url, COOKIES, res, local_filename, semaphore, fallback_r
                         else:
                             print(colored(f"Requested quality not available and no other resulation found for {url.split('/')[-1]}.", 'red'))
                     else:
-                        print(colored('Download link container not found.', 'red'))
+                        print(colored(f'Download link container not found for {local_filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]}.', 'red'))
                 else:
                     print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
 
