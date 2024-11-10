@@ -16,7 +16,6 @@
 - **Resume Capability**: Supports resuming interrupted downloads by utilizing HTTP Range requests.
 - **Download Progress**: Displays a progress bar during downloads using `tqdm` for improved user experience.
 - **Video Quality Selection**: Automatically selects the best available video quality (1080p) if the preferred quality (720p) is not available.
-
 ## Prerequisites
 
 - Python 3.7 or higher installed on your system.
