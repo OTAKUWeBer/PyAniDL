@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import nest_asyncio
 from termcolor import colored
-from .id_grab import grab_id
+from .id_grab import grab_id # Function to find the ID number of the selected Anime
 
 # Apply the nest_asyncio patch
 nest_asyncio.apply()
@@ -44,104 +44,8 @@ def clear_screen():
 
 clear_screen()
 
-async def get_episodes_links(anime_eps_url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(anime_eps_url) as response:
-            if response.status == 200:
-                html = await response.text()
-                soup = BeautifulSoup(html, "html.parser")
-                container = soup.find("ul", {"id": "episode_related"})
-                if container:
-                    links = [f"{gogo_url}{li.find('a')['href'][1:]}" for li in container.find_all("li")]
-                    return links
-                else:
-                    print(colored(f"Failed to retrieve episode list, status code: {response.status}", 'red'))
-            else:
-                print(colored(f"Failed to retrieve page, status code: {response.status}", 'red'))
-            return []
 
-async def download_file(url, cookies, res, local_filename, semaphore, fallback_res=fallback_res, chunk_size=1024):
-    """Download an episode file with the specified resolution."""
-    async with semaphore:
-        async with aiohttp.ClientSession(cookies=cookies) as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, "html.parser")
-                    container = soup.find("div", {"class": "cf-download"})
-                    if container:
-                        links = container.find_all("a")
-                        download_link = next((link['href'] for link in links if res in link.text), None)
-                        
-                        if not download_link:
-                            # Try fallback resolutions
-                            for fallback in fallback_res:
-                                download_link = next((link['href'] for link in links if fallback in link.text), None)
-                                if download_link:
-                                    break
-                            else: 
-                                for link in links:
-                                    download_link = link['href']
-                        
-                        if download_link:
-                            headers = {}
-                            # Check if the file already exists to resume download
-                            if os.path.exists(local_filename):
-                                downloaded_size = os.path.getsize(local_filename)
-                                headers['Range'] = f'bytes={downloaded_size}-'
-                            else:
-                                downloaded_size = 0
-
-                            async with session.get(download_link, headers=headers, timeout=None) as download_response:
-                                total_size = int(download_response.headers.get('content-length', 0)) + downloaded_size
-                                display_name = os.path.basename(local_filename)
-                                
-                                # Ensure the directory exists before downloading
-                                os.makedirs(os.path.dirname(local_filename), exist_ok=True)
-                                
-                                with open(local_filename, 'ab') as file:
-                                    with tqdm(total=total_size, unit='iB', unit_scale=True, desc=display_name, initial=downloaded_size) as t:
-                                        while True:
-                                            chunk = await download_response.content.read(chunk_size)
-                                            if not chunk:
-                                                break
-                                            file.write(chunk)
-                                            t.update(len(chunk))
-                            print("☑", end="")
-                            print(colored(f" File downloaded successfully and saved as {local_filename}", 'green'))
-                        else:
-                            print(colored(f"Requested quality not available and no other resulation found for {url.split('/')[-1]}.", 'red'))
-                    else:
-                        print(colored(f'Download link container not found for {local_filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]}.', 'red'))
-                else:
-                    print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
-
-
-
-def get_valid_url():
-    try:
-        while True:
-            url = questionary.text("Drop the anime link from GoGoanime (anitaku) or 'q' to exit: ").ask()
-            
-            # Check if the user wants to exit
-            if url and url.lower() == 'q':
-                print("Exiting...")
-                return None  # Return None to gracefully exit the loop
-
-            # Check if the URL starts with 'https://anitaku'
-            if url and url.lower().startswith("https://anitaku"):
-                return url
-            else:
-                clear_screen()
-                print(colored("Invalid input. Please enter a URL starting with 'https://anitaku'\nExiting...", 'red'))
-                return
-    except KeyboardInterrupt:
-        print("\nExiting...")  # Added newline for better output format
-        return  # Gracefully return None on KeyboardInterrupt
-
-
-
-
+# Displays the details about Anime
 async def display_anime_details(selected_link):
     """Display details of the selected anime."""
     async with aiohttp.ClientSession() as session:
@@ -200,26 +104,121 @@ async def display_anime_details(selected_link):
             clear_screen()
             print(colored("Download cancelled.", 'red'))
 
+
+# Fetch the episode links of the Selected Episode
 async def fetch_episode_links(anime_eps_url, title):
-    episode_links = await get_episodes_links(anime_eps_url)
-    if not episode_links:
-        return
+    """Fetch episode links and download them."""
+    async with aiohttp.ClientSession() as session:
+        async with session.get(anime_eps_url) as response:
+            if response.status == 200:
+                html = await response.text()
+                soup = BeautifulSoup(html, "html.parser")
+                container = soup.find("ul", {"id": "episode_related"})
+                if container:
+                    episode_links = [f"{gogo_url}{li.find('a')['href'][1:]}" for li in container.find_all("li")]
+                    if not episode_links:
+                        print(colored(f"No episode links found for {title}.", 'red'))
+                        return
+                    
+                    concurrent_downloads = data["concurrent_downloads"]
+                    semaphore = asyncio.Semaphore(concurrent_downloads)
+                    sanitized_title = title.translate(str.maketrans({':': '', '*': '', '?': '', '<': '', '>': '', '|': '', '"': ''}))
 
-    concurrent_downloads = data["concurrent_downloads"]
-    semaphore = asyncio.Semaphore(concurrent_downloads)
-    sanitized_title = title.translate(str.maketrans({':': '', '*': '', '?': '', '<': '', '>': '', '|': '', '"': ''}))
+                    tasks = [
+                        download_file(
+                            url,
+                            COOKIES,
+                            QUALITY,
+                            os.path.join(DOWNLOAD_DIRECTORY, sanitized_title, f"{url.split('/')[-1]}.mp4"),
+                            semaphore
+                        )
+                        for url in reversed(episode_links)
+                    ]
+                    await asyncio.gather(*tasks)
+                else:
+                    print(colored(f"Failed to retrieve episode list for {title}.", 'red'))
+            else:
+                print(colored(f"Failed to fetch page, status code: {response.status}", 'red'))
 
-    tasks = [
-        download_file(
-            url,
-            COOKIES,
-            QUALITY,
-            os.path.join(DOWNLOAD_DIRECTORY, sanitized_title, f"{url.split('/')[-1]}.mp4"),
-            semaphore
-        )
-        for url in reversed(episode_links)
-    ]
-    await asyncio.gather(*tasks)
+
+# To download the episode file
+async def download_file(url, cookies, res, local_filename, semaphore, fallback_res=fallback_res, chunk_size=1024):
+    """Download an episode file with the specified resolution."""
+    async with semaphore:
+        async with aiohttp.ClientSession(cookies=cookies) as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, "html.parser")
+                    container = soup.find("div", {"class": "cf-download"})
+                    if container:
+                        links = container.find_all("a")
+                        download_link = next((link['href'] for link in links if res in link.text), None)
+                        
+                        if not download_link:
+                            # Try fallback resolutions
+                            for fallback in fallback_res:
+                                download_link = next((link['href'] for link in links if fallback in link.text), None)
+                                if download_link:
+                                    break
+                            else: 
+                                for link in links:
+                                    download_link = link['href']
+                        
+                        if download_link:
+                            headers = {}
+                            # Check if the file already exists to resume download
+                            if os.path.exists(local_filename):
+                                downloaded_size = os.path.getsize(local_filename)
+                                headers['Range'] = f'bytes={downloaded_size}-'
+                            else:
+                                downloaded_size = 0
+
+                            async with session.get(download_link, headers=headers, timeout=None) as download_response:
+                                total_size = int(download_response.headers.get('content-length', 0)) + downloaded_size
+                                display_name = os.path.basename(local_filename)
+                                
+                                # Ensure the directory exists before downloading
+                                os.makedirs(os.path.dirname(local_filename), exist_ok=True)
+                                
+                                with open(local_filename, 'ab') as file:
+                                    with tqdm(total=total_size, unit='iB', unit_scale=True, desc=display_name, initial=downloaded_size) as t:
+                                        while True:
+                                            chunk = await download_response.content.read(chunk_size)
+                                            if not chunk:
+                                                break
+                                            file.write(chunk)
+                                            t.update(len(chunk))
+                            print("☑", end="")
+                            print(colored(f" File downloaded successfully and saved as {local_filename}", 'green'))
+                        else:
+                            print(colored(f"Requested quality not available and no other resulation found for {url.split('/')[-1]}.", 'red'))
+                    else:
+                        print(colored(f'Download link container not found for {local_filename.rsplit("/", 1)[-1].rsplit(".", 1)[0]}.', 'red'))
+                else:
+                    print(colored(f"Failed to retrieve download link, status code: {response.status}", 'red'))
+
+
+def get_valid_url():
+    try:
+        while True:
+            url = questionary.text("Drop the anime link from GoGoanime (anitaku) or 'q' to exit: ").ask()
+            
+            # Check if the user wants to exit
+            if url and url.lower() == 'q':
+                print("Exiting...")
+                return None  # Return None to gracefully exit the loop
+
+            # Check if the URL starts with 'https://anitaku'
+            if url and url.lower().startswith("https://anitaku"):
+                return url
+            else:
+                clear_screen()
+                print(colored("Invalid input. Please enter a URL starting with 'https://anitaku'\nExiting...", 'red'))
+                return
+    except KeyboardInterrupt:
+        print("\nExiting...")  # Added newline for better output format
+        return  # Gracefully return None on KeyboardInterrupt
 
 async def link():
     link = get_valid_url()

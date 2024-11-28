@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import aiohttp
 
+# Function to find the ID number of the selected Anime
 async def grab_id(url):
     """Grab the anime ID from the anime details page asynchronously."""
     async with aiohttp.ClientSession() as session:

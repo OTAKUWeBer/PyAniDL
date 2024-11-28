@@ -8,7 +8,7 @@ import nest_asyncio
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from termcolor import colored
-from .id_grab import grab_id
+from .id_grab import grab_id # Function to find the ID number of the selected Anime
 
 # Apply the nest_asyncio patch
 nest_asyncio.apply()
@@ -30,7 +30,7 @@ fetch_ep_list_api = data["fetch_ep_list_api"]
 fallback_res = data["fallback_res"]
 
 
-
+# To clear the terminal screen
 def clear_screen():
     """Clear the console screen."""
     if os.name == 'nt':  # For Windows
@@ -40,6 +40,7 @@ def clear_screen():
 
 clear_screen()
 
+# Search for the Anime
 async def search_anime():
     """Search for an anime and display the results."""
     while True:
@@ -96,6 +97,7 @@ async def search_anime():
         selected_link = results[selected_title]
         await display_anime_details(selected_title, selected_link)
 
+# Displays the details about Anime
 async def display_anime_details(title, selected_link):
     """Display details of the selected anime."""
     async with aiohttp.ClientSession() as session:
@@ -149,6 +151,7 @@ async def display_anime_details(title, selected_link):
             clear_screen()
             print(colored("Download cancelled.", 'red'))
 
+# Fetch the episode links of the Selected Episode
 async def fetch_episode_links(selected_link, title):
     """Fetch episode links for the selected anime and download them."""
     code = await grab_id(selected_link)
@@ -186,6 +189,7 @@ async def fetch_episode_links(selected_link, title):
     tasks = [download_file(url, COOKIES, QUALITY, os.path.join(download_directory, f"{url.split('/')[-1]}.mp4"), semaphore) for url in reversed(download_links)]
     await asyncio.gather(*tasks)
 
+# To download the episode file
 async def download_file(url, COOKIES, res, local_filename, semaphore, fallback_res=fallback_res, chunk_size=1024):
     """Download an episode file with the specified resolution."""
     async with semaphore:
